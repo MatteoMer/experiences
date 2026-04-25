@@ -1,0 +1,23 @@
+---
+import CursorTrail from '../components/CursorTrail';
+import PageContent from '../components/PageContent';
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="viewport" content="width=device-width" />
+		<meta name="generator" content={Astro.generator} />
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+		<title>mtteo</title>
+	</head>
+
+	<body class="min-h-screen bg-[#f0efe9] text-gray-700 font-['Quicksand'] select-none">
+		<PageContent client:only="solid-js" />
+		<CursorTrail client:load />
+		<script src="/src/index.ts"></script>
+	</body>
+</html>
