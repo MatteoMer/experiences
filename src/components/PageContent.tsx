@@ -16,6 +16,7 @@ export default function PageContent() {
     const path = p === "home" ? "/" : `/${p}`;
     history.pushState(null, "", path);
     setPage(p);
+    if (p !== "bookshelf") window.dispatchEvent(new CustomEvent("show-cover", { detail: "" }));
   };
 
   const onPopState = () => setPage(pageFromPath(window.location.pathname));
@@ -68,30 +69,55 @@ export default function PageContent() {
 
       {page() === "bookshelf" && (
         <section class="mt-16 text-left">
-          <ul class="text-sm text-gray-500 space-y-3">
-            <li class="flex justify-between items-baseline">
-              <span>the pragmatic programmer</span>
-              <span class="text-gray-300 text-xs">hunt & thomas</span>
+          <ul class="text-sm text-gray-500 space-y-3 select-text">
+            <li
+              class="flex justify-between items-baseline"
+              onMouseEnter={() => window.dispatchEvent(new CustomEvent("show-cover", { detail: "/notes-from-underground" }))}
+            >
+              <span>notes from underground</span>
+              <span class="text-gray-400 text-xs">dostoevsky</span>
             </li>
-            <li class="flex justify-between items-baseline">
-              <span>designing data-intensive applications</span>
-              <span class="text-gray-300 text-xs">kleppmann</span>
+            <li
+              class="flex justify-between items-baseline"
+              onMouseEnter={() => window.dispatchEvent(new CustomEvent("show-cover", { detail: "/sun-also-rises" }))}
+            >
+              <span>the sun also rises</span>
+              <span class="text-gray-400 text-xs">hemingway</span>
             </li>
-            <li class="flex justify-between items-baseline">
-              <span>godel, escher, bach</span>
-              <span class="text-gray-300 text-xs">hofstadter</span>
+            <li
+              class="flex justify-between items-baseline"
+              onMouseEnter={() => window.dispatchEvent(new CustomEvent("show-cover", { detail: "/popeye" }))}
+            >
+              <span>popeye</span>
+              <span class="text-gray-400 text-xs">magazine house</span>
             </li>
-            <li class="flex justify-between items-baseline">
-              <span>the book of shaders</span>
-              <span class="text-gray-300 text-xs">gonzalez & lowe</span>
+            <li
+              class="flex justify-between items-baseline"
+              onMouseEnter={() => window.dispatchEvent(new CustomEvent("show-cover", { detail: "/between-worlds" }))}
+            >
+              <span>between worlds</span>
+              <span class="text-gray-400 text-xs">harry gruyaert</span>
             </li>
-            <li class="flex justify-between items-baseline">
-              <span>structure and interpretation of computer programs</span>
-              <span class="text-gray-300 text-xs">abelson & sussman</span>
+            <li
+              class="flex justify-between items-baseline"
+              onMouseEnter={() => window.dispatchEvent(new CustomEvent("show-cover", { detail: "/5-levels" }))}
+            >
+              <span>computer scientist explains one concept in 5 levels of difficulty</span>
+              <span class="text-gray-400 text-xs">wired</span>
             </li>
-            <li class="flex justify-between items-baseline">
-              <span>crafting interpreters</span>
-              <span class="text-gray-300 text-xs">nystrom</span>
+            <li
+              class="flex justify-between items-baseline"
+              onMouseEnter={() => window.dispatchEvent(new CustomEvent("show-cover", { detail: "/soloist-in-a-cage" }))}
+            >
+              <span>soloist in a cage</span>
+              <span class="text-gray-400 text-xs">shiro moriya</span>
+            </li>
+            <li
+              class="flex justify-between items-baseline"
+              onMouseEnter={() => window.dispatchEvent(new CustomEvent("show-cover", { detail: "/category-theory" }))}
+            >
+              <span>category theory</span>
+              <span class="text-gray-400 text-xs">milewski</span>
             </li>
           </ul>
         </section>

@@ -1,4 +1,21 @@
 import { onMount, onCleanup, createSignal, For } from "solid-js";
+import * as notesFromUnderground from "../covers/notes-from-underground";
+import * as sunAlsoRises from "../covers/sun-also-rises";
+import * as popeye from "../covers/popeye";
+import * as betweenWorlds from "../covers/between-worlds";
+import * as fiveLevels from "../covers/5-levels";
+import * as categoryTheory from "../covers/category-theory";
+import * as soloistInACage from "../covers/soloist-in-a-cage";
+
+const coverData: Record<string, { width: number; height: number; rects: [number, number, number, number, number][]; scale?: number; speed?: number }> = {
+  "/notes-from-underground": { ...notesFromUnderground, scale: 0.8 },
+  "/sun-also-rises": { ...sunAlsoRises, scale: 1.1, speed: 200 },
+  "/popeye": { ...popeye, scale: 1, speed: 300 },
+  "/between-worlds": { ...betweenWorlds, scale: 0.7, speed: 500 },
+  "/5-levels": { ...fiveLevels, scale: 0.8, speed: 300 },
+  "/category-theory": { ...categoryTheory, scale: 0.9, speed: 80 },
+  "/soloist-in-a-cage": { ...soloistInACage, scale: 1, speed: 300 },
+};
 
 // --- Particle types ---
 interface Particle {
@@ -192,6 +209,35 @@ export default function CursorTrail() {
 
     let cubeDestroyed = false;
 
+    // --- Book cover rects (drawn like the cube) ---
+    type CoverRect = { x: number; y: number; w: number; h: number; opacity: number };
+    let coverRects: CoverRect[] = [];
+    let coverRectsVisible = 0;
+    let coverRectsPerFrame = 600;
+
+    const onShowCover = (e: Event) => {
+      const key = (e as CustomEvent).detail as string;
+      if (!key) { coverRects = []; coverRectsVisible = 0; return; }
+      const cover = coverData[key];
+      if (!cover) { coverRects = []; coverRectsVisible = 0; return; }
+
+      const scale = cover.scale ?? 0.8;
+      const offsetX = window.innerWidth * 0.15 - (cover.width * scale) / 2;
+      const offsetY = 350 - (cover.height * scale) / 2;
+
+      coverRects = cover.rects.map(([x, y, w, h, o]) => ({
+        x: x * scale + offsetX,
+        y: y * scale + offsetY,
+        w: w * scale,
+        h: h * scale,
+        opacity: o,
+      }));
+      coverRects.sort((a, b) => a.y - b.y);
+      coverRectsVisible = 0;
+      coverRectsPerFrame = cover.speed ?? 600;
+    };
+    window.addEventListener("show-cover", onShowCover);
+
     function pushHistory(label: string) {
       const idx = historyIndex();
       // trim any future entries if we acted after undoing
@@ -236,6 +282,8 @@ export default function CursorTrail() {
       inkCtx.clearRect(0, 0, inkCanvas.width, inkCanvas.height);
       erasePoints.length = 0;
       cubeDestroyed = true;
+      coverRects = [];
+      coverRectsVisible = 0;
     }
 
     function setTool(tool: Tool) {
@@ -257,6 +305,8 @@ export default function CursorTrail() {
       cubeTargetY = 0;
       cubePaused = false;
       cubeSpeedBoost = false;
+      coverRects = [];
+      coverRectsVisible = 0;
     }
 
     const onKeyDown = (e: KeyboardEvent) => {
@@ -420,7 +470,7 @@ export default function CursorTrail() {
         eraseAt(e.clientX, e.clientY);
         return;
       }
-      if ((e.target as HTMLElement).closest("a, button")) return;
+      if ((e.target as HTMLElement).closest("a, button, .select-text")) return;
       mouseDown = true;
       pushHistory("draw");
     };
@@ -469,6 +519,8 @@ export default function CursorTrail() {
       if (path === "/about") cubePageTarget = -window.innerWidth * 0.35;
       else if (path === "/bookshelf") cubePageTarget = window.innerWidth * 0.35;
       else cubePageTarget = 0;
+      // clear book cover when leaving bookshelf
+      if (path !== "/bookshelf") coverRects = [];
     }
     updatePageShift();
     cubePageOffset = cubePageTarget; // no animation on initial load
@@ -627,6 +679,19 @@ export default function CursorTrail() {
         }
       }
 
+      // --- Book cover (progressive draw) ---
+      if (coverRects.length > 0) {
+        if (coverRectsVisible < coverRects.length) {
+          coverRectsVisible = Math.min(coverRectsVisible + coverRectsPerFrame, coverRects.length);
+        }
+        trailCtx.fillStyle = "#2a2a2a";
+        for (let i = 0; i < coverRectsVisible; i++) {
+          const r = coverRects[i];
+          trailCtx.globalAlpha = r.opacity;
+          trailCtx.fillRect(Math.round(r.x), Math.round(r.y), r.w, r.h);
+        }
+      }
+
       // punch erase holes through everything (trail + cube)
       if (erasePoints.length > 0) {
         trailCtx.save();
@@ -652,6 +717,7 @@ export default function CursorTrail() {
       window.removeEventListener("mouseup", onUp);
       window.removeEventListener("keydown", onKeyDown);
       window.removeEventListener("popstate", updatePageShift);
+      window.removeEventListener("show-cover", onShowCover);
       document.body.style.cursor = "";
       cancelAnimationFrame(raf);
     });
