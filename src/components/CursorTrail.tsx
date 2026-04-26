@@ -215,9 +215,12 @@ export default function CursorTrail() {
     let coverRectsVisible = 0;
     let coverRectsPerFrame = 600;
 
+    const isMobile = () => window.innerWidth < 768;
+
     const onShowCover = (e: Event) => {
       const key = (e as CustomEvent).detail as string;
       if (!key) { coverRects = []; coverRectsVisible = 0; return; }
+      if (isMobile()) { coverRects = []; coverRectsVisible = 0; return; }
       const cover = coverData[key];
       if (!cover) { coverRects = []; coverRectsVisible = 0; return; }
 
@@ -513,9 +516,11 @@ export default function CursorTrail() {
     let cubeSpeedBoost = false;
     let cubePageTarget = 0;
     let cubePageOffset = 0;
+    let cubeHidden = false;
 
     function updatePageShift() {
       const path = window.location.pathname;
+      cubeHidden = path !== "/";
       if (path === "/about") cubePageTarget = -window.innerWidth * 0.35;
       else if (path === "/bookshelf") cubePageTarget = window.innerWidth * 0.35;
       else cubePageTarget = 0;
@@ -578,7 +583,7 @@ export default function CursorTrail() {
       }
 
       // --- Cube ---
-      if (!cubeDestroyed) {
+      if (!cubeDestroyed && !cubeHidden) {
         if (!cubePaused) viewAngleY += cubeSpeedBoost ? 0.015 : 0.003;
 
         // phase transitions (skip when paused)
