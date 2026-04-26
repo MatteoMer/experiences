@@ -520,7 +520,7 @@ export default function CursorTrail() {
 
     function updatePageShift() {
       const path = window.location.pathname;
-      cubeHidden = path !== "/";
+      cubeHidden = isMobile();
       if (path === "/about") cubePageTarget = -window.innerWidth * 0.35;
       else if (path === "/bookshelf") cubePageTarget = window.innerWidth * 0.35;
       else cubePageTarget = 0;
@@ -529,6 +529,7 @@ export default function CursorTrail() {
     }
     updatePageShift();
     cubePageOffset = cubePageTarget; // no animation on initial load
+    window.addEventListener("resize", updatePageShift);
 
     // listen for client-side navigation
     const origPushState = window.history.pushState.bind(window.history);
@@ -722,6 +723,7 @@ export default function CursorTrail() {
       window.removeEventListener("mouseup", onUp);
       window.removeEventListener("keydown", onKeyDown);
       window.removeEventListener("popstate", updatePageShift);
+      window.removeEventListener("resize", updatePageShift);
       window.removeEventListener("show-cover", onShowCover);
       document.body.style.cursor = "";
       cancelAnimationFrame(raf);
